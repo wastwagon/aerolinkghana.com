@@ -1,0 +1,84 @@
+# Production stack for Coolify — app + PostgreSQL + Redis in one compose file.
+# Coolify: New Resource → Docker Compose → point at this repo.
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-https://aerolinkghana.com}
+        NEXT_PUBLIC_WHATSAPP_NUMBER: ${NEXT_PUBLIC_WHATSAPP_NUMBER:-233555207204}
+        NEXT_PUBLIC_PHONE: ${NEXT_PUBLIC_PHONE:-0555207204}
+        NEXT_PUBLIC_ADDRESS: ${NEXT_PUBLIC_ADDRESS:-Burma Camp, Accra, Ghana}
+        NEXT_PUBLIC_GOOGLE_REVIEW_URL: ${NEXT_PUBLIC_GOOGLE_REVIEW_URL:-https://www.google.com/maps/search/?api=1&query=AeroLink+Ghana+Burma+Camp+Accra}
+        NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY: ${NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY:-}
+    container_name: aerolink-app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-aerolink}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-aerolink}?schema=public
+      REDIS_URL: redis://redis:6379
+      AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_URL: ${AUTH_URL:-https://aerolinkghana.com}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-https://aerolinkghana.com}
+      NEXT_PUBLIC_WHATSAPP_NUMBER: ${NEXT_PUBLIC_WHATSAPP_NUMBER:-233555207204}
+      NEXT_PUBLIC_PHONE: ${NEXT_PUBLIC_PHONE:-0555207204}
+      NEXT_PUBLIC_ADDRESS: ${NEXT_PUBLIC_ADDRESS:-Burma Camp, Accra, Ghana}
+      NEXT_PUBLIC_GOOGLE_REVIEW_URL: ${NEXT_PUBLIC_GOOGLE_REVIEW_URL:-}
+      PAYSTACK_SECRET_KEY: ${PAYSTACK_SECRET_KEY:-}
+      NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY: ${NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_SMTP_HOST: ${RESEND_SMTP_HOST:-smtp.resend.com}
+      RESEND_SMTP_PORT: ${RESEND_SMTP_PORT:-465}
+      EMAIL_FROM: ${EMAIL_FROM:-AeroLink Ghana <bookings@aerolinkghana.com>}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-bookings@aerolinkghana.com}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - aerolink
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: aerolink-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-aerolink}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in Coolify env}
+      POSTGRES_DB: ${POSTGRES_DB:-aerolink}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aerolink} -d ${POSTGRES_DB:-aerolink}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - aerolink
+
+  redis:
+    image: redis:7-alpine
+    container_name: aerolink-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - aerolink
+
+networks:
+  aerolink:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
