@@ -7,7 +7,7 @@ if [ -n "$DATABASE_URL" ]; then
 
   if [ "${RUN_DB_SEED:-true}" != "false" ]; then
     echo "Seeding database (skipped if already seeded)..."
-    node ./node_modules/prisma/build/index.js db seed
+    node ./node_modules/tsx/dist/cli.mjs prisma/seed.ts
   fi
 fi
 

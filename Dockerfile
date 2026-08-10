@@ -48,7 +48,7 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/docker-entrypoint.sh ./docker-entrypoint.sh
 
 # Prisma CLI + seed runner (tsx) for migrate deploy and db seed on container start
-RUN npm install --omit=dev prisma@7.9.1 dotenv tsx --legacy-peer-deps --ignore-scripts \
+RUN npm install --omit=dev prisma@7.9.1 dotenv tsx bcryptjs @prisma/adapter-pg pg --legacy-peer-deps --ignore-scripts \
   && chown -R nextjs:nodejs /app/node_modules \
   && chmod +x ./docker-entrypoint.sh
 
