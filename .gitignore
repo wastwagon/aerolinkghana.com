@@ -45,3 +45,5 @@ next-env.d.ts
 
 # prisma generated client (rebuilt on install/build)
 /src/generated/
+/prisma/seed.prod.mjs
+/prisma/seed.prod.cjs

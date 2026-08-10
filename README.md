@@ -133,12 +133,12 @@ The repo includes a single **`docker-compose.yml`** with:
 2. Coolify → **New Resource** → **Docker Compose**
 3. Connect repo `wastwagon/aerolinkghana.com`, branch `main`
 4. Compose file: `docker-compose.yml`
-5. **Domains** (must include internal port `:3000` for the `app` service):
+5. **Domains** — in the **`app` service** Domains field (not postgres/redis), set exactly:
    - `https://aerolinkghana.com:3000`
    - `https://www.aerolinkghana.com:3000`
+   Set **Direction** to **Allow www & non-www**, then Save and Deploy.
    (Public URLs still use normal HTTPS; `:3000` tells Coolify’s proxy which container port to use.)
-6. Domain: `aerolinkghana.com` (HTTPS)
-7. Add environment variables in Coolify:
+6. Add environment variables in Coolify:
 
 | Variable | Required |
 |---|---|

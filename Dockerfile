@@ -28,6 +28,12 @@ ENV NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=$NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY
 
 RUN npx prisma generate
 RUN npm run build
+RUN npx esbuild prisma/seed.ts \
+  --bundle \
+  --platform=node \
+  --packages=external \
+  --format=esm \
+  --outfile=prisma/seed.prod.mjs
 
 FROM base AS runner
 ENV NODE_ENV=production
@@ -47,8 +53,8 @@ COPY --from=builder /app/src/generated ./src/generated
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/docker-entrypoint.sh ./docker-entrypoint.sh
 
-# Prisma CLI + seed runner (tsx) for migrate deploy and db seed on container start
-RUN npm install --omit=dev prisma@7.9.1 dotenv tsx bcryptjs @prisma/adapter-pg pg --legacy-peer-deps --ignore-scripts \
+# Prisma CLI + seed runtime deps for migrate deploy and db seed on container start
+RUN npm install --omit=dev prisma@7.9.1 dotenv bcryptjs @prisma/adapter-pg pg --legacy-peer-deps --ignore-scripts \
   && chown -R nextjs:nodejs /app/node_modules \
   && chmod +x ./docker-entrypoint.sh
 
