@@ -65,31 +65,31 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 border-t border-white/10 pt-10">
+        <div className="mt-12 border-t border-white pt-10">
           <p className="mb-6 text-[11px] font-semibold uppercase tracking-[0.2em] text-gold">
             Licensed · Insured · Registered
           </p>
           <CredibilityBadges variant="dark" compact />
         </div>
 
-        <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
+        <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-white pt-8 sm:flex-row">
           <div className="text-center sm:text-left">
-            <p className="text-xs text-white/40">
+            <p className="text-xs text-white">
               © {new Date().getFullYear()} {BRAND.name}. All rights reserved.
             </p>
-            <p className="mt-1 text-[10px] text-white/30">
+            <p className="mt-1 text-[10px] text-white">
               Secure online payments processed by{" "}
               <a
                 href="https://paystack.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-white/40 underline-offset-2 hover:text-gold hover:underline"
+                className="text-white underline-offset-2 hover:text-gold hover:underline"
               >
                 Paystack
               </a>
             </p>
           </div>
-          <p className="text-xs text-white/40">
+          <p className="text-xs text-white">
             Chauffeured transfers · Kotoka International · Greater Accra
           </p>
         </div>

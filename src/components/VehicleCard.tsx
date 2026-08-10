@@ -108,6 +108,14 @@ export function VehicleSelector({
     );
   }
 
+  if (vehicles.length === 0) {
+    return (
+      <p className="rounded border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        Vehicles are not available yet. Please try again shortly or contact us on WhatsApp.
+      </p>
+    );
+  }
+
   return (
     <div className="grid gap-4 sm:grid-cols-3">
       {vehicles.map((vehicle) => (

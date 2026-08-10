@@ -9,6 +9,8 @@
     "lint": "eslint",
     "db:migrate": "prisma migrate dev",
     "db:seed": "npx tsx prisma/seed.ts",
+    "db:seed:prod": "node scripts/seed-production.mjs",
+    "db:seed:prod:build": "esbuild prisma/seed.ts --bundle --platform=node --packages=external --format=esm --outfile=scripts/seed-production.mjs",
     "db:studio": "prisma studio",
     "postinstall": "prisma generate"
   },

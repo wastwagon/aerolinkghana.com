@@ -14,7 +14,10 @@ export async function GET() {
       orderBy: { sortOrder: "asc" },
     });
 
-    await cacheSet("vehicles:active", vehicles, 300);
+    if (vehicles.length > 0) {
+      await cacheSet("vehicles:active", vehicles, 300);
+    }
+
     return NextResponse.json(vehicles);
   } catch {
     return NextResponse.json(

@@ -161,6 +161,8 @@ The repo includes a single **`docker-compose.yml`** with:
 
 Default admin is created automatically: `admin@aerolinkghana.com` / `admin123` — **change immediately** at `/login`.
 
+Manual seed in Coolify app terminal (if needed): `node scripts/seed-production.mjs`
+
 To disable auto-seed on restart (optional): set `RUN_DB_SEED=false` in Coolify env.
 
 ### Push to GitHub
@@ -183,7 +185,9 @@ Or use [GitHub Desktop](https://desktop.github.com) with remote `https://github.
 | `npm run build` | Production build |
 | `npm run start` | Start production server |
 | `npm run db:migrate` | Run Prisma migrations |
-| `npm run db:seed` | Seed vehicles & admin user |
+| `npm run db:seed` | Seed vehicles & admin (local dev, uses tsx) |
+| `npm run db:seed:prod` | Run production seed script (plain Node) |
+| `npm run db:seed:prod:build` | Rebuild `scripts/seed-production.mjs` after editing `prisma/seed.ts` |
 | `npm run db:studio` | Open Prisma Studio |
 | `docker compose -f docker-compose.dev.yml up -d` | Start Postgres + Redis (local dev) |
 | `docker compose -f docker-compose.yml -f docker-compose.local.yml up -d --build` | Full stack locally (app on port 3099) |
