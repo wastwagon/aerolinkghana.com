@@ -1,12 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Download, Eye, Loader2, CheckCircle2 } from "lucide-react";
+import {
+  Download,
+  Eye,
+  Loader2,
+  CheckCircle2,
+} from "lucide-react";
+import { CORPORATE_HONEYPOT_FIELD } from "@/lib/corporate-enquiry";
 import { CORPORATE_CONTENT } from "@/lib/content";
-import { BRAND } from "@/lib/constants";
 
 export function CorporateEnquiryForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
+  const [reference, setReference] = useState("");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -15,11 +21,14 @@ export function CorporateEnquiryForm() {
     const data = Object.fromEntries(new FormData(form));
 
     try {
-      await fetch("/api/corporate", {
+      const res = await fetch("/api/corporate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error);
+      setReference(result.reference ?? "");
       setStatus("success");
       form.reset();
     } catch {
@@ -38,12 +47,25 @@ export function CorporateEnquiryForm() {
         <p className="mt-2 text-sm text-muted">
           Our corporate team will respond within one business hour.
         </p>
+        {reference && (
+          <p className="mt-3 font-mono text-sm font-semibold text-navy">
+            Reference: {reference}
+          </p>
+        )}
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="relative space-y-5">
+      <input
+        type="text"
+        name={CORPORATE_HONEYPOT_FIELD}
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-[9999px] h-0 w-0 opacity-0"
+      />
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
           <label className="mb-2 block text-[10px] font-semibold uppercase tracking-widest text-muted">

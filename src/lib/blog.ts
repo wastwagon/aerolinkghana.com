@@ -1,4 +1,5 @@
 import { getBlogImageMeta } from "@/lib/blog-images";
+import { prisma } from "@/lib/prisma";
 
 export interface BlogSection {
   heading?: string;
@@ -16,6 +17,7 @@ export interface BlogPost {
   image: string;
   imageAlt: string;
   sections: BlogSection[];
+  contentHtml?: string | null;
 }
 
 function withImages<T extends Omit<BlogPost, "image" | "imageAlt">>(
@@ -27,7 +29,7 @@ function withImages<T extends Omit<BlogPost, "image" | "imageAlt">>(
   });
 }
 
-const RAW_BLOG_POSTS = [
+export const RAW_BLOG_POSTS = [
   {
     slug: "kotoka-airport-to-hotel-accra",
     title: "How to Get from Kotoka Airport to Your Hotel in Accra",
@@ -475,15 +477,70 @@ const RAW_BLOG_POSTS = [
 
 export const BLOG_POSTS: BlogPost[] = withImages(RAW_BLOG_POSTS);
 
-export function getBlogPost(slug: string): BlogPost | undefined {
+type BlogPostRow = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  category: string;
+  publishedAt: Date;
+  readTime: string;
+  imageUrl: string | null;
+  imageAlt: string | null;
+  sections: unknown;
+  contentHtml: string | null;
+};
+
+function mapDbPost(row: BlogPostRow): BlogPost {
+  const fallback = getBlogImageMeta(row.slug, row.title);
+  return {
+    slug: row.slug,
+    title: row.title,
+    excerpt: row.excerpt,
+    category: row.category,
+    publishedAt: row.publishedAt.toISOString().slice(0, 10),
+    readTime: row.readTime,
+    image: row.imageUrl ?? fallback.image,
+    imageAlt: row.imageAlt ?? fallback.imageAlt,
+    sections: (row.sections as BlogSection[]) ?? [],
+    contentHtml: row.contentHtml,
+  };
+}
+
+export async function getBlogPosts(): Promise<BlogPost[]> {
+  try {
+    const rows = await prisma.blogPost.findMany({
+      where: { isPublished: true },
+      orderBy: { publishedAt: "desc" },
+    });
+    if (rows.length === 0) return BLOG_POSTS;
+    return rows.map(mapDbPost);
+  } catch {
+    return BLOG_POSTS;
+  }
+}
+
+export async function getBlogPost(slug: string): Promise<BlogPost | undefined> {
+  try {
+    const row = await prisma.blogPost.findFirst({
+      where: { slug, isPublished: true },
+    });
+    if (row) return mapDbPost(row);
+  } catch {
+    // fall through to static
+  }
   return BLOG_POSTS.find((p) => p.slug === slug);
 }
 
-export function getRelatedPosts(slug: string, limit = 3): BlogPost[] {
-  const current = getBlogPost(slug);
-  if (!current) return BLOG_POSTS.slice(0, limit);
+export async function getRelatedPosts(
+  slug: string,
+  limit = 3
+): Promise<BlogPost[]> {
+  const posts = await getBlogPosts();
+  const current = posts.find((p) => p.slug === slug);
+  if (!current) return posts.slice(0, limit);
 
-  return BLOG_POSTS.filter((p) => p.slug !== slug)
+  return posts
+    .filter((p) => p.slug !== slug)
     .sort((a, b) => {
       const aMatch = a.category === current.category ? 1 : 0;
       const bMatch = b.category === current.category ? 1 : 0;
@@ -495,6 +552,20 @@ export function getRelatedPosts(slug: string, limit = 3): BlogPost[] {
     .slice(0, limit);
 }
 
-export function getAllBlogSlugs(): string[] {
-  return BLOG_POSTS.map((p) => p.slug);
+export async function getAllBlogSlugs(): Promise<string[]> {
+  try {
+    const rows = await prisma.blogPost.findMany({
+      where: { isPublished: true },
+      select: { slug: true },
+    });
+    if (rows.length === 0) return BLOG_POSTS.map((p) => p.slug);
+    return rows.map((r) => r.slug);
+  } catch {
+    return BLOG_POSTS.map((p) => p.slug);
+  }
+}
+
+/** @deprecated Use getBlogPost async */
+export function getBlogPostSync(slug: string): BlogPost | undefined {
+  return BLOG_POSTS.find((p) => p.slug === slug);
 }

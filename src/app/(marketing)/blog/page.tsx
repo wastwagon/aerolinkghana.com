@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { PageHero } from "@/components/PageHero";
 import { BlogCard } from "@/components/BlogCard";
-import { BLOG_POSTS } from "@/lib/blog";
+import { getBlogPosts } from "@/lib/blog";
 import { createMetadata } from "@/lib/metadata";
 import { IMAGES } from "@/lib/images";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = createMetadata({
   title: "Travel Blog & Guides",
@@ -17,8 +19,9 @@ export const metadata: Metadata = createMetadata({
   },
 });
 
-export default function BlogPage() {
-  const sorted = [...BLOG_POSTS].sort(
+export default async function BlogPage() {
+  const posts = await getBlogPosts();
+  const sorted = [...posts].sort(
     (a, b) =>
       new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   );
@@ -47,7 +50,7 @@ export default function BlogPage() {
               </h2>
             </div>
             <p className="max-w-md text-sm text-muted">
-              {BLOG_POSTS.length} guides covering Kotoka transfers, neighbourhoods,
+              {posts.length} guides covering Kotoka transfers, neighbourhoods,
               and corporate travel in Accra.
             </p>
           </div>

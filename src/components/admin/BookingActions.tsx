@@ -2,7 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, X, Banknote, Loader2 } from "lucide-react";
+import {
+  Check,
+  X,
+  Banknote,
+  Loader2,
+  Play,
+  Flag,
+  RotateCcw,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface BookingActionsProps {
@@ -62,6 +70,32 @@ export function BookingActions({
           Confirm
         </button>
       )}
+      {status === "CONFIRMED" && (
+        <button
+          type="button"
+          onClick={() => updateBooking({ status: "IN_PROGRESS" })}
+          className={cn(
+            btnClass,
+            "border border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100"
+          )}
+        >
+          <Play className="h-4 w-4" />
+          {isLarge ? "Start Trip" : "Start"}
+        </button>
+      )}
+      {status === "IN_PROGRESS" && (
+        <button
+          type="button"
+          onClick={() => updateBooking({ status: "COMPLETED" })}
+          className={cn(
+            btnClass,
+            "border border-green-200 bg-green-50 text-green-700 hover:bg-green-100"
+          )}
+        >
+          <Flag className="h-4 w-4" />
+          Complete
+        </button>
+      )}
       {status !== "CANCELLED" && status !== "COMPLETED" && (
         <button
           type="button"
@@ -88,6 +122,19 @@ export function BookingActions({
         >
           <Banknote className="h-4 w-4" />
           Mark Paid
+        </button>
+      )}
+      {paymentStatus === "PAID" && (
+        <button
+          type="button"
+          onClick={() => updateBooking({ paymentStatus: "REFUNDED" })}
+          className={cn(
+            btnClass,
+            "border border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100"
+          )}
+        >
+          <RotateCcw className="h-4 w-4" />
+          Refund
         </button>
       )}
     </div>

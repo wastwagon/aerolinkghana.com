@@ -1,10 +1,14 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowDown, Phone } from "lucide-react";
-import { BRAND, HERO_COPY } from "@/lib/constants";
+import { HERO_COPY } from "@/lib/constants";
 import { IMAGES } from "@/lib/images";
+import { useBrand } from "@/components/BrandProvider";
 
 export function Hero() {
+  const brand = useBrand();
   return (
     <section className="relative min-h-[92vh] overflow-hidden">
       {/* Full-bleed hero image */}
@@ -43,11 +47,11 @@ export function Hero() {
                 <ArrowDown className="h-4 w-4 transition group-hover:translate-y-0.5" />
               </Link>
               <a
-                href={`tel:${BRAND.phone}`}
+                href={`tel:${brand.phone}`}
                 className="inline-flex items-center gap-2 border border-white/30 px-6 py-4 text-xs font-semibold uppercase tracking-wider text-white transition hover:border-gold hover:text-gold"
               >
                 <Phone className="h-4 w-4" />
-                {BRAND.phone}
+                {brand.phone}
               </a>
             </div>
 

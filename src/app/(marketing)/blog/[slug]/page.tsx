@@ -1,22 +1,20 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BlogArticle } from "@/components/BlogArticle";
-import { getAllBlogSlugs, getBlogPost, getRelatedPosts } from "@/lib/blog";
+import { getBlogPost, getRelatedPosts } from "@/lib/blog";
 import { createMetadata, siteConfig } from "@/lib/metadata";
+
+export const dynamic = "force-dynamic";
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
-}
-
-export async function generateStaticParams() {
-  return getAllBlogSlugs().map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
   params,
 }: BlogPostPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = getBlogPost(slug);
+  const post = await getBlogPost(slug);
   if (!post) return {};
 
   return createMetadata({
@@ -41,10 +39,10 @@ export async function generateMetadata({
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
-  const post = getBlogPost(slug);
+  const post = await getBlogPost(slug);
   if (!post) notFound();
 
-  const relatedPosts = getRelatedPosts(slug);
+  const relatedPosts = await getRelatedPosts(slug);
 
   return <BlogArticle post={post} relatedPosts={relatedPosts} />;
 }

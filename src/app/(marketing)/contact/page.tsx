@@ -3,23 +3,29 @@ import Link from "next/link";
 import { MapPin, Phone, Mail, MessageCircle } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
-import { BRAND } from "@/lib/constants";
+import { getBrandConfig } from "@/lib/brand";
 import { createMetadata } from "@/lib/metadata";
 import { buildWhatsAppUrl } from "@/lib/utils";
 import { IMAGES } from "@/lib/images";
 
-export const metadata: Metadata = createMetadata({
-  title: "Contact",
-  description:
-    "Contact AeroLink Ghana for airport transfer bookings, corporate accounts, and concierge support. Based at Burma Camp, Accra.",
-  openGraph: {
-    title: "Contact Us | AeroLink Ghana",
-    description: `Call ${BRAND.phone} or WhatsApp our team for chauffeured transfers across Accra.`,
-    images: [{ url: IMAGES.og, width: 1200, height: 630, alt: "Contact AeroLink Ghana" }],
-  },
-});
+export const dynamic = "force-dynamic";
 
-export default function ContactPage() {
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrandConfig();
+  return createMetadata({
+    title: "Contact",
+    description: `Contact ${brand.name} for airport transfer bookings, corporate accounts, and concierge support.`,
+    openGraph: {
+      title: `Contact Us | ${brand.name}`,
+      description: `Call ${brand.phone} or WhatsApp our team for chauffeured transfers across Accra.`,
+      images: [{ url: IMAGES.og, width: 1200, height: 630, alt: `Contact ${brand.name}` }],
+    },
+  });
+}
+
+export default async function ContactPage() {
+  const brand = await getBrandConfig();
+
   return (
     <>
       <PageHero
@@ -27,7 +33,7 @@ export default function ContactPage() {
         title="Speak with our concierge team"
         description="Available twenty-four hours a day for bookings, amendments, and corporate enquiries."
         image={IMAGES.meetGreet}
-        imageAlt="Contact AeroLink Ghana"
+        imageAlt={`Contact ${brand.name}`}
         minHeight="min-h-[42vh]"
       />
 
@@ -53,7 +59,7 @@ export default function ContactPage() {
                   <p className="text-[10px] font-semibold uppercase tracking-widest text-muted">
                     Headquarters
                   </p>
-                  <p className="mt-1 font-medium text-navy">{BRAND.address}</p>
+                  <p className="mt-1 font-medium text-navy">{brand.address}</p>
                 </div>
               </li>
               <li className="flex items-start gap-4">
@@ -63,10 +69,10 @@ export default function ContactPage() {
                     Phone
                   </p>
                   <a
-                    href={`tel:${BRAND.phone}`}
+                    href={`tel:${brand.phone}`}
                     className="mt-1 block font-medium text-navy hover:text-gold"
                   >
-                    {BRAND.phone}
+                    {brand.phone}
                   </a>
                 </div>
               </li>
@@ -77,10 +83,10 @@ export default function ContactPage() {
                     Email
                   </p>
                   <a
-                    href={`mailto:${BRAND.email}`}
+                    href={`mailto:${brand.email}`}
                     className="mt-1 block font-medium text-navy hover:text-gold"
                   >
-                    {BRAND.email}
+                    {brand.email}
                   </a>
                 </div>
               </li>
@@ -91,7 +97,10 @@ export default function ContactPage() {
                     WhatsApp
                   </p>
                   <a
-                    href={buildWhatsAppUrl("Hi AeroLink Ghana, I'd like to get in touch.")}
+                    href={buildWhatsAppUrl(
+                      "Hi AeroLink Ghana, I'd like to get in touch.",
+                      brand.whatsapp
+                    )}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-1 block font-medium text-navy hover:text-gold"

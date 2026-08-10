@@ -13,5 +13,7 @@ if [ -n "$DATABASE_URL" ]; then
   fi
 fi
 
+mkdir -p public/uploads 2>/dev/null || true
+
 echo "Starting AeroLink Ghana..."
 exec node server.js

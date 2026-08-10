@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   X,
   Phone,
@@ -13,6 +14,8 @@ import {
   Calendar,
   Users,
   Luggage,
+  Pencil,
+  StickyNote,
 } from "lucide-react";
 import { BookingActions } from "@/components/admin/BookingActions";
 import { formatCurrency, formatDate, buildWhatsAppUrl } from "@/lib/utils";
@@ -35,6 +38,8 @@ export interface AdminBookingRow {
   luggageCount: number;
   quotedPrice: number;
   specialRequests: string | null;
+  adminNotes: string | null;
+  vehicleId: string;
   vehicleName: string;
 }
 
@@ -124,6 +129,24 @@ export function BookingDetailSheet({ booking, onClose }: BookingDetailSheetProps
               <p className="mt-2 text-sm text-navy">{booking.specialRequests}</p>
             </div>
           )}
+
+          {booking.adminNotes && (
+            <div className="mt-4 rounded-xl border border-gold/30 bg-gold/5 p-4">
+              <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-gold">
+                <StickyNote className="h-3 w-3" />
+                Admin notes
+              </p>
+              <p className="mt-2 text-sm text-navy">{booking.adminNotes}</p>
+            </div>
+          )}
+
+          <Link
+            href={`/admin/bookings/${booking.id}/edit`}
+            className="mt-6 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl border border-navy bg-navy text-xs font-bold uppercase tracking-wider text-white active:scale-[0.98]"
+          >
+            <Pencil className="h-4 w-4" />
+            Edit Booking
+          </Link>
 
           <div className="mt-6 grid grid-cols-2 gap-3">
             <a

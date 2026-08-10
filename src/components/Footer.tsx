@@ -3,9 +3,9 @@ import { MapPin, Phone, Mail } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { CredibilityBadges } from "@/components/CredibilityBadges";
 import { footerNav } from "@/lib/navigation";
-import { BRAND } from "@/lib/constants";
+import type { BrandConfig } from "@/lib/brand-types";
 
-export function Footer() {
+export function Footer({ brand }: { brand: BrandConfig }) {
   return (
     <footer id="contact" className="gradient-navy pb-nav text-white lg:pb-0">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
@@ -13,10 +13,46 @@ export function Footer() {
           <div className="lg:col-span-5">
             <Logo variant="light" />
             <p className="mt-6 max-w-sm text-sm leading-relaxed text-white/70">
-              Ghana&apos;s premier chauffeured airport transfer service. From
-              Kotoka International to every corner of Greater Accra — delivered
-              with international standards and local excellence.
+              {brand.tagline}. From Kotoka International to every corner of
+              Greater Accra — delivered with international standards and local
+              excellence.
             </p>
+            {(brand.social.facebook ||
+              brand.social.instagram ||
+              brand.social.linkedin) && (
+              <div className="mt-6 flex flex-wrap gap-4 text-xs uppercase tracking-widest">
+                {brand.social.facebook && (
+                  <a
+                    href={brand.social.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white/60 hover:text-gold"
+                  >
+                    Facebook
+                  </a>
+                )}
+                {brand.social.instagram && (
+                  <a
+                    href={brand.social.instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white/60 hover:text-gold"
+                  >
+                    Instagram
+                  </a>
+                )}
+                {brand.social.linkedin && (
+                  <a
+                    href={brand.social.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white/60 hover:text-gold"
+                  >
+                    LinkedIn
+                  </a>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="lg:col-span-3">
@@ -26,24 +62,24 @@ export function Footer() {
             <ul className="mt-5 space-y-4 text-sm text-white/75">
               <li className="flex items-start gap-3">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
-                {BRAND.address}
+                {brand.address}
               </li>
               <li>
                 <a
-                  href={`tel:${BRAND.phone}`}
+                  href={`tel:${brand.phone}`}
                   className="flex items-center gap-3 transition hover:text-gold"
                 >
                   <Phone className="h-4 w-4 text-gold" />
-                  {BRAND.phone}
+                  {brand.phone}
                 </a>
               </li>
               <li>
                 <a
-                  href={`mailto:${BRAND.email}`}
+                  href={`mailto:${brand.email}`}
                   className="flex items-center gap-3 transition hover:text-gold"
                 >
                   <Mail className="h-4 w-4 text-gold" />
-                  {BRAND.email}
+                  {brand.email}
                 </a>
               </li>
             </ul>
@@ -75,7 +111,7 @@ export function Footer() {
         <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-white pt-8 sm:flex-row">
           <div className="text-center sm:text-left">
             <p className="text-xs text-white">
-              © {new Date().getFullYear()} {BRAND.name}. All rights reserved.
+              © {new Date().getFullYear()} {brand.name}. All rights reserved.
             </p>
             <p className="mt-1 text-[10px] text-white">
               Secure online payments processed by{" "}
@@ -87,6 +123,14 @@ export function Footer() {
               >
                 Paystack
               </a>
+              {" · "}
+              <Link href="/pages/privacy-policy" className="hover:text-gold hover:underline">
+                Privacy
+              </Link>
+              {" · "}
+              <Link href="/pages/terms-of-service" className="hover:text-gold hover:underline">
+                Terms
+              </Link>
             </p>
           </div>
           <p className="text-xs text-white">

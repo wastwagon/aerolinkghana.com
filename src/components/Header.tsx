@@ -4,9 +4,9 @@ import Link from "next/link";
 import { Phone, X, ArrowRight } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { mainNav } from "@/lib/navigation";
-import { BRAND } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { useScrollLock } from "@/lib/use-scroll-lock";
+import { useBrand } from "@/components/BrandProvider";
 
 interface HeaderProps {
   menuOpen: boolean;
@@ -15,6 +15,7 @@ interface HeaderProps {
 
 export function Header({ menuOpen, setMenuOpen }: HeaderProps) {
   useScrollLock(menuOpen);
+  const brand = useBrand();
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-white/10 bg-navy/90 backdrop-blur-xl safe-top">
@@ -121,11 +122,11 @@ export function Header({ menuOpen, setMenuOpen }: HeaderProps) {
               <ArrowRight className="h-4 w-4 text-gold/60" />
             </Link>
             <a
-              href={`tel:${BRAND.phone}`}
+              href={`tel:${brand.phone}`}
               className="flex min-h-[52px] items-center gap-3 px-3 text-base font-medium text-gold active:bg-white/5"
             >
               <Phone className="h-5 w-5" />
-              {BRAND.phone}
+              {brand.phone}
             </a>
           </div>
 

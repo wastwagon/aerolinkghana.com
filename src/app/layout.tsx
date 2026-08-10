@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
-import { defaultMetadata } from "@/lib/metadata";
+import { createMetadata } from "@/lib/metadata";
+import { getBrandConfig } from "@/lib/brand";
 import "./globals.css";
 
 const inter = Inter({
@@ -15,7 +16,33 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
-export const metadata: Metadata = defaultMetadata;
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    const brand = await getBrandConfig();
+    return createMetadata({
+      description: brand.seoDescription,
+      openGraph: {
+        title: `${brand.name} | ${brand.tagline}`,
+        description: brand.seoDescription,
+        images: [
+          {
+            url: brand.ogImage,
+            width: 1200,
+            height: 630,
+            alt: `${brand.name} — Premium airport transfers in Accra, Ghana`,
+          },
+        ],
+      },
+      twitter: {
+        title: `${brand.name} | ${brand.tagline}`,
+        description: brand.seoDescription,
+        images: [brand.ogImage],
+      },
+    });
+  } catch {
+    return createMetadata();
+  }
+}
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

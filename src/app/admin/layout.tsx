@@ -1,5 +1,8 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+import { getBrandConfig } from "@/lib/brand";
+import { prisma } from "@/lib/prisma";
+import { BrandProvider } from "@/components/BrandProvider";
 import { AdminShell } from "@/components/admin/AdminShell";
 
 export default async function AdminLayout({
@@ -12,7 +15,19 @@ export default async function AdminLayout({
     redirect("/login?callbackUrl=/admin");
   }
 
+  const [brand, newCorporateCount] = await Promise.all([
+    getBrandConfig(),
+    prisma.corporateEnquiry.count({ where: { status: "NEW" } }),
+  ]);
+
   return (
-    <AdminShell userEmail={session.user.email ?? ""}>{children}</AdminShell>
+    <BrandProvider brand={brand}>
+      <AdminShell
+        userEmail={session.user.email ?? ""}
+        newCorporateCount={newCorporateCount}
+      >
+        {children}
+      </AdminShell>
+    </BrandProvider>
   );
 }

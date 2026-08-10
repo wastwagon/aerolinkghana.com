@@ -3,15 +3,17 @@
 import { MessageCircle } from "lucide-react";
 import { buildWhatsAppUrl } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { useBrand } from "@/components/BrandProvider";
 
 interface FloatingWhatsAppProps {
   aboveNav?: boolean;
 }
 
 export function FloatingWhatsApp({ aboveNav = true }: FloatingWhatsAppProps) {
+  const brand = useBrand();
   return (
     <a
-      href={buildWhatsAppUrl("Hi AeroLink Ghana, I need an airport transfer.")}
+      href={buildWhatsAppUrl("Hi AeroLink Ghana, I need an airport transfer.", brand.whatsapp)}
       target="_blank"
       rel="noopener noreferrer"
       className={cn(

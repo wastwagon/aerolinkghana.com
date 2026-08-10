@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search, ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { Search, ChevronRight, Pencil } from "lucide-react";
 import {
   BookingDetailSheet,
   type AdminBookingRow,
@@ -9,7 +10,14 @@ import {
 import { BookingActions } from "@/components/admin/BookingActions";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
-const STATUS_FILTERS = ["ALL", "PENDING", "CONFIRMED", "COMPLETED", "CANCELLED"] as const;
+const STATUS_FILTERS = [
+  "ALL",
+  "PENDING",
+  "CONFIRMED",
+  "IN_PROGRESS",
+  "COMPLETED",
+  "CANCELLED",
+] as const;
 
 interface AdminBookingsPanelProps {
   bookings: AdminBookingRow[];
@@ -120,11 +128,20 @@ export function AdminBookingsPanel({ bookings }: AdminBookingsPanelProps) {
                   />
                 </td>
                 <td className="px-6 py-4">
-                  <BookingActions
-                    bookingId={booking.id}
-                    status={booking.status}
-                    paymentStatus={booking.paymentStatus}
-                  />
+                  <div className="flex items-center gap-2">
+                    <BookingActions
+                      bookingId={booking.id}
+                      status={booking.status}
+                      paymentStatus={booking.paymentStatus}
+                    />
+                    <Link
+                      href={`/admin/bookings/${booking.id}/edit`}
+                      className="flex min-h-[44px] min-w-[44px] items-center justify-center border border-border text-navy transition hover:border-gold hover:text-gold"
+                      aria-label="Edit booking"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Link>
+                  </div>
                 </td>
               </tr>
             ))}

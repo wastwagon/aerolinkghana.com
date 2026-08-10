@@ -34,7 +34,10 @@ export function generateBookingReference(): string {
   return `${prefix}-${timestamp}-${random}`;
 }
 
-export function buildWhatsAppUrl(message: string): string {
-  const number = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "233555207204";
-  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+export function buildWhatsAppUrl(message: string, number?: string) {
+  const n =
+    number ??
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ??
+    "233555207204";
+  return `https://wa.me/${n}?text=${encodeURIComponent(message)}`;
 }

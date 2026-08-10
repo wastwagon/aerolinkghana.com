@@ -6,40 +6,35 @@ import { calculatePrice } from "@/lib/pricing";
 import { generateBookingReference } from "@/lib/utils";
 import { notifyBookingCreated } from "@/lib/emails/send-booking-emails";
 import {
+  adminBookingCreateSchema,
+  publicBookingSchema,
+} from "@/lib/booking-schema";
+import {
   getClientIp,
   rateLimit,
   rateLimitHeaders,
 } from "@/lib/rate-limit";
 
-const bookingSchema = z.object({
-  type: z.enum(["PICKUP", "DROPOFF"]),
-  vehicleId: z.string().min(1),
-  pickupLocation: z.string().min(3),
-  dropoffLocation: z.string().min(3),
-  pickupDate: z.string().datetime(),
-  flightNumber: z.string().optional(),
-  passengerCount: z.number().int().min(1).max(14),
-  luggageCount: z.number().int().min(0).max(20).optional(),
-  customerName: z.string().min(2),
-  customerEmail: z.string().email(),
-  customerPhone: z.string().min(10),
-  specialRequests: z.string().optional(),
-  paymentMethod: z.enum(["CASH", "MOBILE_MONEY", "CARD", "WHATSAPP"]).default("WHATSAPP"),
-});
-
 export async function POST(request: NextRequest) {
-  const ip = getClientIp(request);
-  const rl = await rateLimit(`booking:create:${ip}`, 10, 3600);
-  if (!rl.allowed) {
-    return NextResponse.json(
-      { error: "Too many booking attempts. Please try again later." },
-      { status: 429, headers: rateLimitHeaders(rl, 10) }
-    );
+  const session = await auth();
+  const isAdmin = session?.user?.role === "ADMIN";
+
+  if (!isAdmin) {
+    const ip = getClientIp(request);
+    const rl = await rateLimit(`booking:create:${ip}`, 10, 3600);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: "Too many booking attempts. Please try again later." },
+        { status: 429, headers: rateLimitHeaders(rl, 10) }
+      );
+    }
   }
 
   try {
     const body = await request.json();
-    const data = bookingSchema.parse(body);
+    const data = isAdmin
+      ? adminBookingCreateSchema.parse(body)
+      : publicBookingSchema.parse(body);
 
     const vehicle = await prisma.vehicle.findUnique({
       where: { id: data.vehicleId, isActive: true },
@@ -58,6 +53,8 @@ export async function POST(request: NextRequest) {
       type: data.type,
     });
 
+    const adminData = isAdmin ? adminBookingCreateSchema.parse(body) : null;
+
     const booking = await prisma.booking.create({
       data: {
         reference: generateBookingReference(),
@@ -66,21 +63,26 @@ export async function POST(request: NextRequest) {
         pickupLocation: data.pickupLocation,
         dropoffLocation: data.dropoffLocation,
         pickupDate: new Date(data.pickupDate),
-        flightNumber: data.flightNumber,
+        flightNumber: data.flightNumber ?? null,
         passengerCount: data.passengerCount,
         luggageCount: data.luggageCount ?? 0,
         customerName: data.customerName,
         customerEmail: data.customerEmail,
         customerPhone: data.customerPhone,
-        specialRequests: data.specialRequests,
-        quotedPrice: pricing.quotedPrice,
-        distanceKm: pricing.distanceKm,
+        specialRequests: data.specialRequests ?? null,
+        quotedPrice: adminData?.quotedPrice ?? pricing.quotedPrice,
+        distanceKm: adminData?.distanceKm ?? pricing.distanceKm,
         paymentMethod: data.paymentMethod,
+        status: adminData?.status ?? "PENDING",
+        paymentStatus: adminData?.paymentStatus ?? "PENDING",
+        adminNotes: adminData?.adminNotes ?? null,
       },
       include: { vehicle: true },
     });
 
-    notifyBookingCreated(booking.id);
+    if (!isAdmin || adminData?.sendNotification !== false) {
+      notifyBookingCreated(booking.id);
+    }
 
     return NextResponse.json(
       {
@@ -105,16 +107,25 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const { searchParams } = new URL(request.url);
+  const take = Math.min(Number(searchParams.get("limit") ?? 100), 500);
+  const status = searchParams.get("status");
+  const paymentStatus = searchParams.get("paymentStatus");
+
   try {
     const bookings = await prisma.booking.findMany({
+      where: {
+        ...(status ? { status: status as never } : {}),
+        ...(paymentStatus ? { paymentStatus: paymentStatus as never } : {}),
+      },
       orderBy: { createdAt: "desc" },
-      take: 50,
+      take,
       include: { vehicle: true },
     });
     return NextResponse.json(bookings);

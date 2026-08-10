@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, Calendar, Clock } from "lucide-react";
 import type { BlogPost } from "@/lib/blog";
 import { BlogCard } from "@/components/BlogCard";
+import { CmsHtmlContent } from "@/components/CmsHtmlContent";
 
 interface BlogArticleProps {
   post: BlogPost;
@@ -88,36 +89,40 @@ export function BlogArticle({ post, relatedPosts }: BlogArticleProps) {
               <div className="mt-12 h-px bg-border" />
 
               <div className="mt-12 space-y-10">
-                {post.sections.map((section, i) => (
-                  <div key={i}>
-                    {section.heading && (
-                      <h2 className="font-display text-2xl font-bold text-navy sm:text-3xl">
-                        {section.heading}
-                      </h2>
-                    )}
-                    {section.paragraphs?.map((p) => (
-                      <p
-                        key={p.slice(0, 48)}
-                        className="mt-4 text-base leading-relaxed text-muted sm:text-[17px] sm:leading-8"
-                      >
-                        {p}
-                      </p>
-                    ))}
-                    {section.bullets && (
-                      <ul className="mt-5 space-y-3">
-                        {section.bullets.map((item) => (
-                          <li
-                            key={item}
-                            className="flex items-start gap-3 text-base leading-relaxed text-muted"
-                          >
-                            <span className="mt-2.5 h-1.5 w-1.5 shrink-0 bg-gold" />
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                ))}
+                {post.contentHtml ? (
+                  <CmsHtmlContent html={post.contentHtml} />
+                ) : (
+                  post.sections.map((section, i) => (
+                    <div key={i}>
+                      {section.heading && (
+                        <h2 className="font-display text-2xl font-bold text-navy sm:text-3xl">
+                          {section.heading}
+                        </h2>
+                      )}
+                      {section.paragraphs?.map((p) => (
+                        <p
+                          key={p.slice(0, 48)}
+                          className="mt-4 text-base leading-relaxed text-muted sm:text-[17px] sm:leading-8"
+                        >
+                          {p}
+                        </p>
+                      ))}
+                      {section.bullets && (
+                        <ul className="mt-5 space-y-3">
+                          {section.bullets.map((item) => (
+                            <li
+                              key={item}
+                              className="flex items-start gap-3 text-base leading-relaxed text-muted"
+                            >
+                              <span className="mt-2.5 h-1.5 w-1.5 shrink-0 bg-gold" />
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))
+                )}
               </div>
 
               <div className="mt-16 overflow-hidden border border-border bg-light-blue-bg/40">

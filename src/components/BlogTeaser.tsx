@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { BLOG_POSTS } from "@/lib/blog";
+import { getBlogPosts } from "@/lib/blog";
 import { BlogCard } from "@/components/BlogCard";
 
-export function BlogTeaser() {
-  const posts = [...BLOG_POSTS]
+export async function BlogTeaser() {
+  const posts = [...(await getBlogPosts())]
     .sort(
       (a, b) =>
         new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()

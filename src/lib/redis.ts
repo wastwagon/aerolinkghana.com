@@ -42,3 +42,12 @@ export async function cacheSet(
     // Cache failures should not break the app
   }
 }
+
+export async function cacheDel(key: string): Promise<void> {
+  if (!redis) return;
+  try {
+    await redis.del(key);
+  } catch {
+    // Cache failures should not break the app
+  }
+}

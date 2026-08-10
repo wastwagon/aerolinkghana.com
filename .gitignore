@@ -45,3 +45,6 @@ next-env.d.ts
 
 # prisma generated client (rebuilt on install/build)
 /src/generated/
+
+# user uploads (stored in Docker volume in production)
+/public/uploads/

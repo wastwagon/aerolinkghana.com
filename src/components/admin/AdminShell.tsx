@@ -1,9 +1,5 @@
 "use client";
 
-import { signOut } from "next-auth/react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
 import {
   LayoutDashboard,
   FileText,
@@ -11,22 +7,58 @@ import {
   LogOut,
   Menu,
   X,
+  Settings,
+  CreditCard,
+  Plus,
+  ImageIcon,
+  BookOpen,
+  Car,
+  Briefcase,
 } from "lucide-react";
+import Link from "next/link";
+import { signOut } from "next-auth/react";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 import { useScrollLock } from "@/lib/use-scroll-lock";
 
 const navItems = [
   { href: "/admin", label: "Bookings", icon: LayoutDashboard, exact: true },
+  { href: "/admin/bookings/new", label: "New Booking", icon: Plus },
+  { href: "/admin/payments", label: "Payments", icon: CreditCard },
+  { href: "/admin/corporate", label: "Corporate", icon: Briefcase },
+  { href: "/admin/fleet", label: "Fleet", icon: Car },
+  { href: "/admin/blog", label: "Blog", icon: BookOpen },
+  { href: "/admin/media", label: "Media", icon: ImageIcon },
   { href: "/admin/cms", label: "Content", icon: FileText },
+  { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
 interface AdminShellProps {
   userEmail: string;
+  newCorporateCount?: number;
   children: React.ReactNode;
 }
 
-export function AdminShell({ userEmail, children }: AdminShellProps) {
+function pageTitle(pathname: string) {
+  if (pathname.startsWith("/admin/bookings/new")) return "New Booking";
+  if (pathname.includes("/edit")) return "Edit Booking";
+  if (pathname.startsWith("/admin/payments")) return "Payments";
+  if (pathname.startsWith("/admin/corporate")) return "Corporate";
+  if (pathname.startsWith("/admin/fleet")) return "Fleet";
+  if (pathname.startsWith("/admin/blog")) return "Blog";
+  if (pathname.startsWith("/admin/media")) return "Media";
+  if (pathname.startsWith("/admin/cms")) return "Content";
+  if (pathname.startsWith("/admin/settings")) return "Settings";
+  return "Bookings";
+}
+
+export function AdminShell({
+  userEmail,
+  newCorporateCount = 0,
+  children,
+}: AdminShellProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   useScrollLock(sidebarOpen);
@@ -82,8 +114,18 @@ export function AdminShell({ userEmail, children }: AdminShellProps) {
                     : "text-white/70 hover:bg-white/10 hover:text-white"
                 )}
               >
-                <item.icon className="h-5 w-5" />
-                {item.label}
+                <item.icon className="h-5 w-5 shrink-0" />
+                <span className="min-w-0 flex-1">{item.label}</span>
+                {item.href === "/admin/corporate" && newCorporateCount > 0 && (
+                  <span
+                    className={cn(
+                      "ml-auto shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold tabular-nums",
+                      active ? "bg-white/20 text-white" : "bg-gold text-white"
+                    )}
+                  >
+                    {newCorporateCount > 99 ? "99+" : newCorporateCount}
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -123,7 +165,7 @@ export function AdminShell({ userEmail, children }: AdminShellProps) {
             </button>
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-widest text-muted">
-                {pathname === "/admin/cms" ? "Content" : "Bookings"}
+                {pageTitle(pathname)}
               </p>
               <p className="truncate text-xs text-navy lg:hidden">{userEmail}</p>
             </div>
