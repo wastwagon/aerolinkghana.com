@@ -152,18 +152,13 @@ The repo includes a single **`docker-compose.yml`** with:
 
 `DATABASE_URL` and `REDIS_URL` are **wired automatically** inside compose — do not override unless using external DB.
 
-8. Deploy
+8. Deploy — migrations and seed run automatically when the app container starts.
 
-### First deploy only — seed admin & vehicles
+### After first deploy
 
-Open Coolify terminal on the **app** container (one-time):
+Default admin is created automatically: `admin@aerolinkghana.com` / `admin123` — **change immediately** at `/login`.
 
-```bash
-# If you have shell access with node — or run locally against prod DB:
-npm run db:seed
-```
-
-Default admin: `admin@aerolinkghana.com` / `admin123` — **change immediately**.
+To disable auto-seed on restart (optional): set `RUN_DB_SEED=false` in Coolify env.
 
 ### Push to GitHub
 
@@ -188,7 +183,7 @@ Or use [GitHub Desktop](https://desktop.github.com) with remote `https://github.
 | `npm run db:seed` | Seed vehicles & admin user |
 | `npm run db:studio` | Open Prisma Studio |
 | `docker compose -f docker-compose.dev.yml up -d` | Start Postgres + Redis (local dev) |
-| `docker compose up -d --build` | Start full production stack locally |
+| `docker compose -f docker-compose.yml -f docker-compose.local.yml up -d --build` | Full stack locally (app on port 3099) |
 
 ## Paystack Setup (Prototype)
 

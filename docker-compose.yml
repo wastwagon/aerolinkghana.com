@@ -13,10 +13,10 @@ services:
         NEXT_PUBLIC_ADDRESS: ${NEXT_PUBLIC_ADDRESS:-Burma Camp, Accra, Ghana}
         NEXT_PUBLIC_GOOGLE_REVIEW_URL: ${NEXT_PUBLIC_GOOGLE_REVIEW_URL:-https://www.google.com/maps/search/?api=1&query=AeroLink+Ghana+Burma+Camp+Accra}
         NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY: ${NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY:-}
-    container_name: aerolink-app
     restart: unless-stopped
-    ports:
-      - "${APP_PORT:-3000}:3000"
+    # Coolify routes via internal network — do not bind host ports (avoids :3000 conflicts).
+    expose:
+      - "3000"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-aerolink}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-aerolink}?schema=public
       REDIS_URL: redis://redis:6379
@@ -34,6 +34,7 @@ services:
       RESEND_SMTP_PORT: ${RESEND_SMTP_PORT:-465}
       EMAIL_FROM: ${EMAIL_FROM:-AeroLink Ghana <bookings@aerolinkghana.com>}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-bookings@aerolinkghana.com}
+      RUN_DB_SEED: ${RUN_DB_SEED:-true}
     depends_on:
       postgres:
         condition: service_healthy
@@ -44,7 +45,6 @@ services:
 
   postgres:
     image: postgres:16-alpine
-    container_name: aerolink-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-aerolink}
@@ -62,7 +62,6 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: aerolink-redis
     restart: unless-stopped
     command: redis-server --appendonly yes
     volumes:

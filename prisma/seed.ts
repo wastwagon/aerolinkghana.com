@@ -62,7 +62,7 @@ async function main() {
   for (const vehicle of vehicles) {
     await prisma.vehicle.upsert({
       where: { id: vehicle.id },
-      update: vehicle,
+      update: {},
       create: vehicle,
     });
   }
